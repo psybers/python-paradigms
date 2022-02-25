@@ -1,0 +1,12 @@
+o: output collection[hash: int] of url: string;
+
+visit(input, visitor {
+    before cr: CodeRepository -> {
+        snapshot := getsnapshot(cr, "SOURCE_PY_");
+        foreach (i: int; snapshot[i].kind != FileKind.SOURCE_PY_ERROR)
+            visit(snapshot[i]);
+        stop;
+    }
+    before ast: ASTRoot ->
+        o[hash(string(ast, true))] << input.project_url + "/blob/master/" + current(ChangedFile).name;
+});

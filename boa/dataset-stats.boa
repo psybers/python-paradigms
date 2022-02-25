@@ -1,0 +1,40 @@
+PROJECTS: output sum of int;
+REVS: output sum of int;
+FILES: output sum of int;
+SNAPSHOTS: output sum of int;
+AST: output sum of int;
+
+has_source_file := false;
+
+visit(input, visitor {
+	before cr: CodeRepository -> {
+		cnt := getrevisionscount(cr);
+		for (i := 0; !has_source_file && i < cnt; i++) {
+			rev := getrevision(cr, i);
+			foreach (j: int; !has_source_file && rev.files[j].kind != FileKind.SOURCE_PY_ERROR && iskind("SOURCE_PY_", rev.files[j].kind))
+				has_source_file = true;
+		}
+		stop;
+	}
+});
+
+if (has_source_file) {
+	files: map[string] of bool;
+
+	PROJECTS << 1;
+
+	visit(input, visitor {
+		before Revision -> REVS << 1;
+		before f: ChangedFile -> {
+			if (f.kind == FileKind.SOURCE_PY_ERROR || !iskind("SOURCE_PY_", f.kind))
+				stop;
+			if (!haskey(files, f.name)) {
+				FILES << 1;
+				files[f.name] = true;
+			}
+			SNAPSHOTS << 1;
+		}
+		before _ -> AST << 1;
+		before Person -> ;
+	});
+}

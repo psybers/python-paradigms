@@ -1,0 +1,468 @@
+o: output collection[proj: string][path: string][rev: string][ts: int] of string;
+
+type Counts = { func: int, oo: int, proc: int, imp: int, stmts: int };
+
+classifyExpr:      function(unused_1: Expression)             : Counts;
+classifyStmt:      function(unused_2: Statement)              : Counts;
+classifyMethod:    function(unused_3: Method, in_class: bool) : Counts;
+classifyDecl:      function(unused_4: Declaration)            : Counts;
+classifyNamespace: function(unused_5: Namespace)              : Counts;
+
+classes: set of string;
+namespaces: set of string;
+functional_methods: set of string;
+
+classifyCounts := function(c: Counts) : string {
+    m := max(c.func, max(c.oo, max(c.proc, c.imp)));
+
+    if (m > 0) {
+        if (m == c.func) {
+            if (c.func == c.imp || c.func == c.oo || c.func == c.proc)
+                return "mixed";
+            return "func";
+        } else if (m == c.oo) {
+            if (c.oo == c.imp || c.oo == c.func || c.oo == c.proc)
+                return "mixed";
+            return "oo";
+        } else if (m == c.proc) {
+            if (c.proc == c.imp || c.proc == c.oo || c.proc == c.func)
+                return "mixed";
+            return "proc";
+        } else if (m == c.imp) {
+            if (c.imp == c.func || c.imp == c.oo || c.imp == c.proc)
+                return "mixed";
+            return "imp";
+        }
+    }
+
+    return "mixed";
+};
+
+resetns := function() {
+    clear(namespaces);
+    clear(functional_methods);
+
+    add(functional_methods, "map");
+    add(functional_methods, "filter");
+    add(functional_methods, "enumerate");
+    add(functional_methods, "zip");
+    add(functional_methods, "reduce");
+    add(functional_methods, "sorted");
+    add(functional_methods, "iter");
+    add(functional_methods, "any");
+    add(functional_methods, "all");
+    add(functional_methods, "send");
+};
+
+clampCounts := function(orig: Counts) : Counts {
+    c: Counts = { 0, 0, 0, 0, 0 };
+
+    if (orig.func > 0) c.func = 1;
+    if (orig.oo > 0)   c.oo = 1;
+    if (orig.proc > 0) c.proc = 1;
+    if (orig.imp > 0)  c.imp = 1;
+    c.stmts = orig.stmts;
+
+    if (c.func > 0 || c.oo > 0 || c.proc > 0) c.imp = 0;
+
+    return c;
+};
+
+addCounts := function(c1: Counts, c2: Counts) : Counts {
+    c: Counts = { c1.func + c2.func, c1.oo + c2.oo, c1.proc + c2.proc, c1.imp + c2.imp, c1.stmts + c2.stmts };
+    return c;
+};
+
+str := function(c: Counts) : string {
+    return format("{ %d, %d, %d, %d, %d }", c.func, c.oo, c.proc, c.imp, c.stmts);
+};
+
+classifyExpr = function(e: Expression) : Counts {
+    c: Counts = { 0, 0, 0, 0, 0 };
+
+    switch (e.kind) {
+        case ExpressionKind.YIELD, ExpressionKind.IN, ExpressionKind.NOT_IN, ExpressionKind.GENERATOR:
+            c.func = c.func + 1;
+            foreach (i: int; def(e.expressions[i])) {
+                c2 := classifyExpr(e.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        case ExpressionKind.METHODCALL:
+            # FIXME send() might be too wide - argument should be an iterable
+            if (len(e.expressions) == 0 && contains(functional_methods, e.method)) {
+                c.func = c.func + 1;
+            } else if (len(e.expressions) == 1 && (e.expressions[0].variable == "functools" || e.expressions[0].variable == "itertools")) {
+                c.func = c.func + 1;
+            } else if (len(e.expressions) > 0) {
+                if (contains(namespaces, e.expressions[0].variable))
+                    c.proc = c.proc + 1;
+                else
+                    c.oo = c.oo + 1;
+            } else {
+                classInstance := false;
+                classNames := values(classes);
+                exists (i: int; classNames[i] == e.method)
+                    classInstance = true;
+
+                if (classInstance)
+                    c.oo = c.oo + 1;
+                else
+                    c.proc = c.proc + 1;
+            }
+
+            foreach (i: int; def(e.method_args[i])) {
+                c2 := classifyExpr(e.method_args[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        case ExpressionKind.CALLHOLDER:
+            foreach (i: int; def(e.expressions[i])) {
+                c2 := classifyExpr(e.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        case ExpressionKind.LAMBDA, ExpressionKind.ARRAY_COMPREHENSION:
+            c.func = c.func + 1;
+            foreach (i: int; def(e.expressions[i])) {
+                c2 := classifyExpr(e.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        case ExpressionKind.VARACCESS:                                                                                  
+            if (len(e.expressions) == 1 && e.expressions[0].kind == ExpressionKind.VARACCESS && e.expressions[0].variable == "self")
+                c.oo = c.oo + 1;
+            else
+                c.imp = c.imp + 1;
+            foreach (i: int; def(e.expressions[i])) {
+                c2 := classifyExpr(e.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        default:
+            c.imp = c.imp + 1;
+            foreach (i: int; def(e.expressions[i])) {
+                c2 := classifyExpr(e.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+    }
+
+    return clampCounts(c);
+};
+
+classifyStmt = function(s: Statement) : Counts {
+    c: Counts = { 0, 0, 0, 0, 1 };
+
+    switch (s.kind) {
+        case StatementKind.TRY, StatementKind.CATCH, StatementKind.RAISE, StatementKind.FINALLY, StatementKind.WITH:
+            foreach (i: int; def(s.expressions[i])) {
+                c2 := classifyExpr(s.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            c.oo = 1;
+            c.imp = 0;
+            foreach (i: int; def(s.statements[i])) {
+                c2 := classifyStmt(s.statements[i]);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        case StatementKind.FOREACH:
+            foreach (i: int; def(s.conditions[i])) {
+                c2 := classifyExpr(s.conditions[i]);
+                c = addCounts(c, c2);
+            }
+            c.func = 1;
+            c.imp = 0;
+            foreach (i: int; def(s.statements[i])) {
+                c2 := classifyStmt(s.statements[i]);
+                c = addCounts(c, c2);
+            }
+            if (len(s.statements) > 1) {
+                c.imp = c.imp + 1;
+                c.stmts = c.stmts + 1;
+            }
+            break;
+
+        case StatementKind.BLOCK:
+            c.stmts = 0;
+            foreach (i: int; def(s.expressions[i])) {
+                c2 := classifyExpr(s.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.statements[i])) {
+                c2 := classifyStmt(s.statements[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.methods[i])) {
+                c2 := classifyMethod(s.methods[i], false);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.type_declarations[i])) {
+                c2 := classifyDecl(s.type_declarations[i]);
+                c = addCounts(c, c2);
+            }
+            if (def(s.type_declaration)) {
+                c2 := classifyDecl(s.type_declaration);
+                c = addCounts(c, c2);
+            }
+            break;
+
+        case StatementKind.RETURN:
+            foreach (i: int; def(s.expressions[i])) {
+                c2 := classifyExpr(s.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            c.imp = 0;
+            break;
+
+        case StatementKind.IF, StatementKind.WHILE:
+            foreach (i: int; def(s.conditions[i])) {
+                c2 := classifyExpr(s.conditions[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.statements[i])) {
+                c2 := classifyStmt(s.statements[i]);
+                c = addCounts(c, c2);
+                if (i > 0 && s.statements[i].kind == StatementKind.BLOCK) {
+                    c.imp = c.imp + 1;
+                    c.stmts = c.stmts + 1;
+                }
+            }
+            break;
+
+        case StatementKind.ASSERT, StatementKind.DEL:
+            foreach (i: int; def(s.expressions[i])) {
+                c2 := classifyExpr(s.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.conditions[i])) {
+                c2 := classifyExpr(s.conditions[i]);
+                c = addCounts(c, c2);
+            }
+            c = clampCounts(c);
+            break;
+
+        case StatementKind.EXPRESSION:
+            if (len(s.expressions) != 1 || (s.expressions[0].kind != ExpressionKind.IMPORT
+                                        && s.expressions[0].kind != ExpressionKind.IMPORT_FROM
+                                        && (!def(s.expressions[0].literal) || strfind("\\\"\\\"\\\"", s.expressions[0].literal) != 0))) {
+                foreach (i: int; def(s.expressions[i])) {
+                    c2 := classifyExpr(s.expressions[i]);
+                    c = addCounts(c, c2);
+                }
+                foreach (i: int; def(s.statements[i])) {
+                    c2 := classifyStmt(s.statements[i]);
+                    c = addCounts(c, c2);
+                }
+                foreach (i: int; def(s.methods[i])) {
+                    c2 := classifyMethod(s.methods[i], false);
+                    c = addCounts(c, c2);
+                }
+                foreach (i: int; def(s.type_declarations[i])) {
+                    c2 := classifyDecl(s.type_declarations[i]);
+                    c = addCounts(c, c2);
+                }
+                if (def(s.type_declaration)) {
+                    c2 := classifyDecl(s.type_declaration);
+                    c = addCounts(c, c2);
+                }
+            }
+            break;
+
+        case StatementKind.GLOBAL:
+            c.imp = c.imp + 1;
+            break;
+
+        default:
+            c.imp = c.imp + 1;
+            foreach (i: int; def(s.conditions[i])) {
+                c2 := classifyExpr(s.conditions[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.initializations[i])) {
+                c2 := classifyExpr(s.initializations[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.updates[i])) {
+                c2 := classifyExpr(s.updates[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.expressions[i])) {
+                c2 := classifyExpr(s.expressions[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.statements[i])) {
+                c2 := classifyStmt(s.statements[i]);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.methods[i])) {
+                c2 := classifyMethod(s.methods[i], false);
+                c = addCounts(c, c2);
+            }
+            foreach (i: int; def(s.type_declarations[i])) {
+                c2 := classifyDecl(s.type_declarations[i]);
+                c = addCounts(c, c2);
+            }
+            if (def(s.type_declaration)) {
+                c2 := classifyDecl(s.type_declaration);
+                c = addCounts(c, c2);
+            }
+            break;
+    }
+
+    return c;
+};
+
+argUsedAsFunc := false;
+
+usedAsFunction := function(name: string, m: Method) : int {
+    count := 0;
+    total := 0;
+    foreach (i: int; def(m.statements[i])) {
+        assigned := false;
+
+        visit(m.statements[i], visitor {
+            before Statement -> count = 0;
+            after s: Statement ->
+                if (s.kind != StatementKind.BLOCK && count > 0) {
+                    argUsedAsFunc = true;
+                    if (classifyStmt(s).func == 0)
+                        total = total + 1;
+                }
+            before e: Expression ->
+                if (!assigned && e.kind == ExpressionKind.METHODCALL && e.method == name && len(e.expressions) == 0)
+                    count = count + 1;
+                else if (e.kind == ExpressionKind.ASSIGN && len(e.expressions) > 1 && e.expressions[0].variable == name)
+                    if (e.expressions[1].kind != ExpressionKind.LAMBDA)
+                        assigned = true;
+        });
+    }
+    return total;
+};
+
+classifyMethod = function(m: Method, in_class: bool) : Counts {
+    c: Counts = { 0, 0, 0, 0, 1 };
+
+    foreach (i: int; m.modifiers[i].kind == ModifierKind.ANNOTATION) {
+        c.func = c.func + 1;
+        c.stmts = c.stmts + 1;
+    }
+
+    foreach (i: int; def(m.statements[i])) {
+        stmtCounts := classifyStmt(m.statements[i]);
+        c = addCounts(c, stmtCounts);
+    }
+
+    if (in_class)
+        c.oo = c.stmts;
+    else
+        c.proc = c.stmts;
+
+    argUsedAsFunc = false;
+    foreach (i: int; m.arguments[i])
+        c.func = c.func + usedAsFunction(m.arguments[i].name, m);
+    if (argUsedAsFunc)
+        c.func = c.func + 1;
+
+    return c;
+};
+
+isIterable := function(d: Declaration) : bool {
+    # has __iter__?
+    ifall (i: int; d.methods[i].name != "__iter__")
+        return false;
+
+    # has __next__?
+    ifall (i: int; d.methods[i].name != "__next__")
+        return false;
+
+    return true;
+};
+
+classifyDecl = function(d: Declaration) : Counts {
+    c: Counts = { 0, 1, 0, 0, 1 };
+
+    foreach (i: int; d.modifiers[i].kind == ModifierKind.ANNOTATION) {
+        c.func = c.func + 1;
+        c.stmts = c.stmts + 1;
+    }
+
+    foreach (i: int; def(d.statements[i])) {
+        stmtCounts := classifyStmt(d.statements[i]);
+        stmtCounts.oo = max(stmtCounts.oo, stmtCounts.stmts);
+        c = addCounts(c, stmtCounts);
+    }
+
+    foreach (i: int; def(d.methods[i])) {
+        methodCounts := classifyMethod(d.methods[i], true);
+        methodCounts.oo = max(methodCounts.oo, methodCounts.stmts);
+        c = addCounts(c, methodCounts);
+    }
+
+    foreach (i: int; def(d.nested_declarations[i])) {
+        declCounts := classifyDecl(d.nested_declarations[i]);
+        c = addCounts(c, declCounts);
+    }
+
+    if (isIterable(d))
+        c.func = c.func + 3;
+
+    return c;
+};
+
+classifyNamespace = function(n: Namespace) : Counts {
+    c: Counts = { 0, 0, 0, 0, len(n.imports) };
+
+    resetns();
+    foreach (i: int; def(n.imports[i])) {
+        parts := split(n.imports[i], " as ");
+        if (strfind("from ", n.imports[i]) == -1 && len(parts) > 1) {
+            add(namespaces, parts[1]);
+        } else {
+            parts = split(n.imports[i], "from (functools|itertools) ");
+            if (len(parts) > 1)
+                add(functional_methods, parts[1]);
+            else if (len(parts) > 0)
+                add(namespaces, parts[0]);
+        }
+    }
+
+    foreach (i: int; def(n.statements[i])) {
+        stmtCounts := classifyStmt(n.statements[i]);
+        c = addCounts(c, stmtCounts);
+    }
+
+    foreach (i: int; def(n.methods[i])) {
+        methodCounts := classifyMethod(n.methods[i], false);
+        c = addCounts(c, methodCounts);
+    }
+
+    foreach (i: int; def(n.declarations[i])) {
+        declCounts := classifyDecl(n.declarations[i]);
+        c = addCounts(c, declCounts);
+    }
+
+    return c;
+};
+
+visit(input, visitor {
+    before d: Declaration ->
+        add(classes, d.name);
+});
+
+visit(input, visitor {
+    before cf: ChangedFile ->
+        if (cf.kind == FileKind.SOURCE_PY_ERROR || !iskind("SOURCE_PY_", cf.kind))
+            stop;
+    before n: Namespace -> {
+        o[input.project_url][current(ChangedFile).name][current(Revision).id][current(Revision).commit_date] << str(classifyNamespace(n));
+        stop;
+    }
+});

@@ -1,0 +1,26 @@
+FILES: output sum of int;
+
+has_source_file := false;
+
+visit(input, visitor {
+	before cr: CodeRepository -> {
+		cnt := getrevisionscount(cr);
+		for (i := 0; !has_source_file && i < cnt; i++) {
+			rev := getrevision(cr, i);
+			foreach (j: int; !has_source_file && rev.files[j].kind != FileKind.SOURCE_PY_ERROR && iskind("SOURCE_PY_", rev.files[j].kind))
+				has_source_file = true;
+		}
+		stop;
+	}
+});
+
+if (has_source_file) {
+	visit(input, visitor {
+	    before node: CodeRepository -> {
+	        snapshot := getsnapshot(node, "SOURCE_PY_");
+	        foreach (i: int; snapshot[i].kind != FileKind.SOURCE_PY_ERROR)
+				FILES << 1;
+	        stop;
+	    }
+	});
+}

@@ -1,0 +1,126 @@
+o: output sum[proj: string][path: string][feature: string] of int;
+
+namespaces: set of string;
+functional_methods: set of string;
+
+resetns := function() {
+    clear(namespaces);
+    clear(functional_methods);
+
+    add(functional_methods, "map");
+    add(functional_methods, "filter");
+    add(functional_methods, "enumerate");
+    add(functional_methods, "zip");
+    add(functional_methods, "reduce");
+    add(functional_methods, "sorted");
+    add(functional_methods, "iter");
+    add(functional_methods, "any");
+    add(functional_methods, "all");
+    add(functional_methods, "send");
+};
+
+isIterable := function(d: Declaration) : bool {
+    # has __iter__?
+    ifall (i: int; d.methods[i].name != "__iter__")
+        return false;
+
+    # has __next__?
+    ifall (i: int; d.methods[i].name != "__next__")
+        return false;
+
+    return true;
+};
+
+usedAsFunction := function(name: string, m: Method) : int {
+    count := 0;
+    total := 0;
+    foreach (i: int; def(m.statements[i])) {
+        assigned := false;
+
+        visit(m.statements[i], visitor {
+            before Statement -> count = 0;
+            after s: Statement ->
+                if (s.kind != StatementKind.BLOCK && count > 0)
+                    total = total + 1;
+            before e: Expression ->
+                if (!assigned && e.kind == ExpressionKind.METHODCALL && e.method == name && len(e.expressions) == 0)
+                    count = count + 1;
+                else if (e.kind == ExpressionKind.ASSIGN && len(e.expressions) > 1 && e.expressions[0].variable == name)
+                    if (e.expressions[1].kind != ExpressionKind.LAMBDA)
+                        assigned = true;
+        });
+    }
+    return total;
+};
+
+visit(input, visitor {
+    before node: CodeRepository -> {
+        if (getrevisionscount(node) == 0) stop;
+
+        snapshot := getsnapshot(node);
+        foreach (i: int; snapshot[i].kind != FileKind.SOURCE_PY_ERROR && iskind("SOURCE_PY_", snapshot[i].kind))
+            visit(snapshot[i]);
+        stop;
+    }
+    before n: Namespace -> {
+        resetns();
+        foreach (i: int; def(n.imports[i])) {
+            parts := split(n.imports[i], " as ");
+            if (strfind("from ", n.imports[i]) == -1 && len(parts) > 1) {
+                add(namespaces, parts[1]);
+            } else {
+                parts = split(n.imports[i], "from (functools|itertools) ");
+                if (len(parts) > 1)
+                    add(functional_methods, parts[1]);
+                else
+                    add(namespaces, parts[0]);
+            }
+        }
+    }
+
+    before d: Declaration -> {
+        o[input.project_url][current(ChangedFile).name]["class"] << 1;
+        if (len(d.parents) > 0)
+            o[input.project_url][current(ChangedFile).name]["inherits"] << 1;
+        foreach (i: int; d.modifiers[i].kind == ModifierKind.ANNOTATION)
+            o[input.project_url][current(ChangedFile).name]["class-decorator"] << 1;
+        if (isIterable(d))
+            o[input.project_url][current(ChangedFile).name]["iterable"] << 1;
+    }
+
+    before m: Method -> {
+        o[input.project_url][current(ChangedFile).name]["method"] << 1;
+        foreach (i: int; m.modifiers[i].kind == ModifierKind.ANNOTATION)
+            o[input.project_url][current(ChangedFile).name]["method-decorator"] << 1;
+        foreach (i: int; m.arguments[i])
+            if (usedAsFunction(m.arguments[i].name, m) > 0)
+                o[input.project_url][current(ChangedFile).name]["higher-order-func"] << 1;
+    }
+
+    before s: Statement ->
+        switch (s.kind) {
+            case StatementKind.TRY, StatementKind.CATCH, StatementKind.RAISE, StatementKind.FINALLY, StatementKind.WITH, StatementKind.FOREACH:
+                o[input.project_url][current(ChangedFile).name][string(s.kind)] << 1;
+                break;
+
+            default:
+                break;
+        }
+
+    before e: Expression ->
+        switch (e.kind) {
+            case ExpressionKind.YIELD, ExpressionKind.IN, ExpressionKind.NOT_IN, ExpressionKind.GENERATOR, ExpressionKind.LAMBDA, ExpressionKind.ARRAY_COMPREHENSION:
+                o[input.project_url][current(ChangedFile).name][string(e.kind)] << 1;
+                break;
+
+            case ExpressionKind.METHODCALL:
+                if (len(e.expressions) == 0 && contains(functional_methods, e.method))
+                    o[input.project_url][current(ChangedFile).name]["func-" + e.method] << 1;
+                else if (len(e.expressions) == 1 && (e.expressions[0].variable == "functools" || e.expressions[0].variable == "itertools"))
+                    o[input.project_url][current(ChangedFile).name]["func-" + e.expressions[0].variable + "-" + e.method] << 1;
+                break;
+
+            default:
+                break;
+        }
+});

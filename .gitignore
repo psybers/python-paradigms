@@ -1,0 +1,13 @@
+# data files
+data/csv/*.csv
+data/parquet/*.parquet
+data/txt/*.txt
+
+# generated files
+figures/*.png
+tables/*.tex
+
+# temp files
+.DS_Store
+__pycache__/
+.*.swp
