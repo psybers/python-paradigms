@@ -37,7 +37,7 @@ Here we provide instructions on manually getting the output, but it is probably 
 Run `boa/counts.boa` and save the output to `data/txt/counts.txt`.
 
 #### Get file hashes for dupe checking
-Run `boa/dupes.boa` and save the output to `data/txt/hashes.txt`.
+Run `boa/hashes.boa` and save the output to `data/txt/hashes.txt`.
 
 Then run `make gendupes` to keep only the hashes for files with at least one dupe.
 
@@ -52,7 +52,7 @@ Run `boa/rq4-evolution.boa` and save the output to `data/txt/rq4.output.txt`.
 
 ### Processing Boa Output
 
-The Boa output is in a custom format, so first we convert it all into standard CSV format: `make gendupes csv`
+The Boa output is in a custom format, so first we convert it all into standard CSV format: `make csv`
 
 If you used the `make data` command instead of manually obtaining the outputs, you do not need to do anything else as it will call these targets for you.
 

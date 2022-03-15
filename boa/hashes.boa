@@ -1,0 +1,18 @@
+o: output collection[hash: int] of url: string;
+
+visit(input, visitor {
+    before cr: CodeRepository -> {
+        snapshot := getsnapshot(cr, "SOURCE_PY_");
+        foreach (i: int; snapshot[i].kind != FileKind.SOURCE_PY_ERROR)
+            visit(snapshot[i]);
+        stop;
+    }
+    before ast: ASTRoot -> {
+        json := string(ast, true);
+        if (len(json) > 25) {
+            json = substring(string(ast, true), 25);
+            json = substring(json, strfind("\"", json));
+        }
+        o[hash(json)] << input.project_url + "/blob/master/" + current(ChangedFile).name;
+    }
+});
