@@ -10,12 +10,15 @@ rqs: clean
 
 all: data rqs
 
-data: gendupes csv rmparquet
+data: getdata gendupes csv
+
+getdata:
+	./getdata.py
 
 gendupes:
 	python3 data/gendupes.py data/txt/hashes.txt > data/txt/dupes.txt
 
-csv:
+csv: rmparquet
 	python3 data/boaToCsv.py -t '2,\.i?py(nb)?' data/txt/counts.txt > data/csv/counts.csv
 	python3 data/boaToCsv.py -d 1 -t '2,\.i?py(nb)?' data/txt/dataset-stats-main.txt > data/csv/dataset-stats-main.csv
 	python3 data/boaToCsv.py -d 1 -t '2,\.i?py(nb)?' data/txt/dataset-stats.txt > data/csv/dataset-stats.csv

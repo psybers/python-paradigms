@@ -31,6 +31,8 @@ Any generated tables (`.tex`) will go into this folder.
 
 The first step is to run Boa queries to generate output data for further processing.
 
+Here we provide instructions on manually getting the output, but it is probably easier to just run the helper script: `make getdata`
+
 #### Get some dataset statistics
 Run `boa/dataset-stats.boa` and save the output to `data/txt/dataset-stats.txt`.
 
@@ -55,7 +57,9 @@ Run `boa/rq4-evolution.boa` and save the output to `data/txt/rq4.output.txt`.
 
 ### Processing Boa Output
 
-The Boa output is in a custom format, so first we convert it all into standard CSV format: `make csv`
+The Boa output is in a custom format, so first we convert it all into standard CSV format: `make gendupes csv`
+
+If you used the `make data` command instead of manually obtaining the outputs, you do not need to do anything else as it will call these targets for you.
 
 ### Generating Figures and Tables
 
