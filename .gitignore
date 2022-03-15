@@ -4,6 +4,7 @@ data/parquet/*.parquet
 data/txt/*.txt
 
 # generated files
+figures/*.pdf
 figures/*.png
 tables/*.tex
 
@@ -11,3 +12,4 @@ tables/*.tex
 .DS_Store
 __pycache__/
 .*.swp
+paper/
