@@ -3,7 +3,7 @@
 
 This replication package contains all data and scripts needed to reproduce the results from the paper.
 
-Note that all data was originally processed on a MacBook Pro with 2.6GHz 6-Core Intel Core i7 CPU and 32GB memory.  Some of the scripts (rq4) require substantial memory (around 11GB if processing from CSV).
+Note that all data was originally processed on a MacBook Pro with 2.6GHz 6-Core Intel Core i7 CPU and 32GB memory.  Some of the scripts (rq4) require substantial memory (around 60GB if processing from CSV).
 
 ------------------------------------------------------
 
@@ -31,7 +31,7 @@ Any generated tables (`.tex`) will go into this folder.
 
 The first step is to run Boa queries to generate output data for further processing.
 
-Here we provide instructions on manually getting the output, but it is probably easier to just run the helper script: `make getdata`
+Here we provide instructions on manually getting the output, but it is probably easier to just run the helper script: `make get-boa-output`
 
 #### Get some per-project counts
 Run `boa/counts.boa` and save the output to `data/txt/counts.txt`.
@@ -60,7 +60,7 @@ If you used the `make data` command instead of manually obtaining the outputs, y
 
 To generate all the figures and tables for the paper, you need to run the script for each specific research question on the output from Boa.
 
-**Note: when you run these scripts, they load the Parquet files if they exist or fall back to loading CSV files. If you need to make any changes to the data, you will want to delete the Parquet files (`make rmparquet`) before you re-run these scripts.**
+**Note: when you run these scripts, they load the Parquet files if they exist or fall back to loading CSV files. If you need to make any changes to the data, you will want to delete the Parquet files and regenerate the CSVs (`make csvs` does both) before you re-run these scripts.**
 
 #### Generate the dataset statistics tables
 

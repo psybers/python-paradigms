@@ -1,37 +1,57 @@
-rqs: clean
-	python3 judgements.py &
-	python3 cohens.py &
-	python3 rq2.py
-	(python3 rq1.py ; python3 rq3.py) &
-	(python3 rq4.py ; python3 stats-table.py) &
+PYTHON:=python3
+
+BOATOCSV:=$(PYTHON) data/boaToCsv.py
+GENDUPES:=$(PYTHON) data/gendupes.py
+
+.PHONY: all rqs data get-boa-output gendupes csvs update-figures package
 
 all: data rqs
 
-data: getdata gendupes csv
+rqs: clean
+	$(PYTHON) judgements.py &
+	$(PYTHON) cohens.py &
+	$(PYTHON) rq2.py
+	($(PYTHON) rq1.py ; $(PYTHON) rq3.py) &
+	($(PYTHON) rq4.py ; $(PYTHON) stats-table.py) &
 
-getdata:
+data: get-boa-output gendupes csvs
+
+get-boa-output:
 	./getdata.py
 
 gendupes:
-	python3 data/gendupes.py data/txt/hashes.txt > data/txt/dupes.txt
+	$(GENDUPES) data/txt/hashes.txt > data/txt/dupes.txt
 
-csv: rmparquet
-	python3 data/boaToCsv.py -t '2,\.i?py(nb)?' data/txt/counts.txt > data/csv/counts.csv
-	python3 data/boaToCsv.py -t '2,\.i?py(nb)?' data/txt/dupes.txt > data/csv/dupes.csv
-	python3 data/boaToCsv.py -t '2,\.i?py(nb)?' data/txt/rq1.output.txt > data/csv/rq1.output.csv
-	python3 data/boaToCsv.py -t '2,\.i?py(nb)?' data/txt/rq2.output.txt > data/csv/rq2.output.csv
-	python3 data/boaToCsv.py -t '2,\.i?py(nb)?' data/txt/rq4.output.txt > data/csv/rq4.output.csv
+csvs: clean-pq
+	$(BOATOCSV) -t '2,\.i?py(nb)?' data/txt/counts.txt > data/csv/counts.csv
+	$(BOATOCSV) -t '2,\.i?py(nb)?' data/txt/dupes.txt > data/csv/dupes.csv
+	$(BOATOCSV) -t '2,\.i?py(nb)?' data/txt/rq1.output.txt > data/csv/rq1.output.csv
+	$(BOATOCSV) -t '2,\.i?py(nb)?' data/txt/rq2.output.txt > data/csv/rq2.output.csv
+	$(BOATOCSV) -t '2,\.i?py(nb)?' data/txt/rq4.output.txt > data/csv/rq4.output.csv
 
 update-figures:
 	cd paper ; git pull ; rm -Rf figures/ tables/ ; cp -R ../figures . ; cp -R ../tables . ; git add figures/ tables/ ; git commit -m 'update figures/tables' ; git push
 
-rmparquet:
-	rm -f data/parquet/*
-
 package:
-	zip -r replication-pkg.zip Makefile *.py LICENSE.txt README.md tables/ figures/ data/ boa/ -x \*/.DS_Store
+	zip -r replication-pkg.zip Makefile *.py LICENSE.txt README.md tables/ figures/ data/ boa/ -x \*/.DS_Store -x \*/.keep -x data/csv/\*.csv
+
+.PHONY: clean clean-gen clean-pq clean-boa clean-zip clean-all
 
 clean:
 	rm -Rf __pycache__
-	rm -f figures/*
-	rm -f tables/*
+	rm -f figures/*.pdf
+	rm -f tables/*.tex
+
+clean-gen:
+	rm -f data/csv/*.csv
+
+clean-pq:
+	rm -f data/parquet/*.parquet
+
+clean-boa:
+	rm -f data/txt/*.txt
+
+clean-zip:
+	rm -f replication-pkg.zip
+
+clean-all: clean clean-gen clean-pq clean-boa clean-zip
