@@ -43,12 +43,15 @@ except:
     df.to_parquet('data/parquet/rq4.parquet', compression='gzip')
 
 try:
-    dfchanged = pd.read_parquet('data/parquet/rq4-changed.parquet')
+    dfnodupes = pd.read_parquet('data/parquet/rq4-nodupes.parquet')
 except:
     dfnodupes = common.remove_dupes(df)
     dfnodupes = common.split_categories(dfnodupes, categories)
-
     dfnodupes['classified'] = dfnodupes.apply(common.classify_file, axis=1)
+
+try:
+    dfchanged = pd.read_parquet('data/parquet/rq4-changed.parquet')
+except:
     dfchanged = dfnodupes[dfnodupes.duplicated(subset=['project', 'file'], keep=False)]
     dfchanged.to_parquet('data/parquet/rq4-changed.parquet', compression='gzip')
 
