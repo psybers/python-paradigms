@@ -56,7 +56,7 @@ subplot.set_axisbelow(True)
 from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.ylabel('Files')
-plt.savefig('figures/' + 'rq3-hist.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq3-hist.pdf', dpi=1200, bbox_inches='tight')
 plt.show()
 
 # %%
@@ -66,7 +66,7 @@ subplot = mydf2.plot.bar(figsize=(4,4), logy=False,rot=0,xlabel='',legend=False)
 subplot.grid(axis='y')
 subplot.set_axisbelow(True)
 plt.ylabel('Files')
-plt.savefig('figures/' + 'rq3-hist-func.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq3-hist-func.pdf', dpi=1200, bbox_inches='tight')
 plt.show()
 
 
@@ -87,7 +87,7 @@ subplot.set_axisbelow(True)
 from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.ylabel('Files')
-plt.savefig('figures/' + 'rq3-ppl-hist.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq3-ppl-hist.pdf', dpi=1200, bbox_inches='tight')
 plt.show()
 
 
@@ -108,5 +108,5 @@ subplot.set_axisbelow(True)
 from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.ylabel('Files')
-plt.savefig('figures/' + 'rq3-revs-hist.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq3-revs-hist.pdf', dpi=1200, bbox_inches='tight')
 plt.show()

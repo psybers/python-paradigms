@@ -37,7 +37,7 @@ subplot.grid(axis='x')
 subplot.set_axisbelow(True)
 plt.axvline(x=1.5)
 plt.ylabel('Statements (per file)')
-plt.savefig('figures/' + 'rq1-statement-dist.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq1-statement-dist.pdf', dpi=1200, bbox_inches='tight')
 plt.show()
 
 # %%
@@ -48,7 +48,7 @@ subplot.set_axisbelow(True)
 subplot.yaxis.set_major_formatter(PercentFormatter(xmax=1.0))
 subplot.set_xticklabels(labels=categories[0:-1])
 plt.ylabel('File Statements (%)')
-plt.savefig('figures/' + 'rq1-statement-pct.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq1-statement-pct.pdf', dpi=1200, bbox_inches='tight')
 plt.show()
 
 # %%
@@ -63,7 +63,7 @@ from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.xlabel(None)
 plt.ylabel('Files')
-plt.savefig('figures/' + 'rq1-file-totals.png', dpi=1200, bbox_inches='tight')
+plt.savefig('figures/' + 'rq1-file-totals.pdf', dpi=1200, bbox_inches='tight')
 plt.show()
 
 
