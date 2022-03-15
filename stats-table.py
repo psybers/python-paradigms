@@ -53,7 +53,7 @@ except:
 projs = len(dfnodupes.project.unique())
 revs = len(dfnodupes.commitdate.unique())
 files = len(dfnodupes.groupby(['project', 'file']).first())
-filesmain = len(rq1nodupes.groupby(['project', 'file']).first())
+filesmain = len(rq1nodupes)
 snapshots = len(dfnodupes)
 asts = dfnodupes.groupby(['project']).first()['ast_count'].sum()
 
