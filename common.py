@@ -141,7 +141,12 @@ def filter_projects(df):
     return df
 
 
-def save_table(df, filename, decimals=2, dropheader=False, **kwargs):
+colsepname = ''
+def save_table(df, filename, decimals=2, dropheader=False, colsep=False, **kwargs):
+    global colsepname
+    if not colsep is False:
+        colsepname = colsepname + 'A'
+
     pd.options.display.float_format = ('{:,.' + str(decimals) + 'f}').format
 
     with pd.option_context("max_colwidth", 1000):
@@ -149,10 +154,15 @@ def save_table(df, filename, decimals=2, dropheader=False, **kwargs):
 
     if dropheader:
         lines = tab1.splitlines()
-        tab1 = '\n'.join(lines[0:2] + lines[5:])
+        tab1 = '\n'.join(lines[0:2] + lines[lines.index('\\midrule') + 1:])
 
     print(tab1)
-    with open('tables/' + filename + '.tab.tex', 'w') as f:
-        f.write("% DO NOT EDIT\n")
-        f.write("% this file was automatically generated\n")
+    with open('tables/' + filename + '.tab.tex', 'w', encoding='utf-8') as f:
+        f.write('% DO NOT EDIT\n')
+        f.write('% this file was automatically generated\n')
+        if not colsep is False:
+            f.write('\\newcommand{\\oldtabcolsep' + colsepname + '}{\\tabcolsep}\n')
+            f.write('\\renewcommand{\\tabcolsep}{' + colsep + '}\n')
         f.write(tab1)
+        if not colsep is False:
+            f.write('\\renewcommand{\\tabcolsep}{\\oldtabcolsep' + colsepname + '}\n')

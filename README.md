@@ -33,11 +33,6 @@ The first step is to run Boa queries to generate output data for further process
 
 Here we provide instructions on manually getting the output, but it is probably easier to just run the helper script: `make getdata`
 
-#### Get some dataset statistics
-Run `boa/dataset-stats.boa` and save the output to `data/txt/dataset-stats.txt`.
-
-Run `boa/dataset-stats-main.boa` and save the output to `data/txt/dataset-stats-main.txt`.
-
 #### Get some per-project counts
 Run `boa/counts.boa` and save the output to `data/txt/counts.txt`.
 
@@ -71,11 +66,7 @@ To generate all the figures and tables for the paper, you need to run the script
 
 > `python3 stats-table.py`
 
-This generates the dataset statistics table, Table 1.
-
-> `python3 counts.py`
-
-This generates the dataset statistics table, Table 2.
+This generates the dataset statistics tables, Table 1 and 2.
 
 #### Generate the judgements table
 

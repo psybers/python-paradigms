@@ -48,9 +48,6 @@ def getoutput(id, filename=None):
     elif job.exec_status is ExecutionStatus.ERROR:
         print(f'job job.id had exec error')
 
-getoutput(96246, filename='dataset-stats-main.txt')
-getoutput(96239, filename='dataset-stats.txt')
-
 getoutput(96231, filename='counts.txt')
 
 getoutput(96245, filename='hashes.txt')
