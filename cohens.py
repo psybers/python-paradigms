@@ -1,5 +1,20 @@
+#!/usr/bin/env python3
 # %%
+import pandas as pd
+import common
+
+categories = common.get_categories()[0:4]
+cats = {}
+for i in range(len(categories)):
+    cats[categories[i]] = i + 1
+cats['Mixed'] = len(categories) + 1
+
+df = pd.read_csv('data/judgements.csv',
+                 header=0,
+                 usecols=['Human', 'Machine'],
+                 index_col=False)
+df.Human = df.Human.map(lambda x: cats[x])
+df.Machine = df.Machine.map(lambda x: cats[x])
+
 from sklearn.metrics import cohen_kappa_score
-Human_judgement= [1,2,2,3,2,1,1,1,2,1,1,2,3,2,3,2,1,4,1,1,3,1,1,1,1,4,2,1,1,1,1,1,1,2,1,3,1,4,3,3,3,3,3,1,3,1,3,4,2,1,2,3,2,1,1,3,1,1,1,3,1,3,1,1,1,4,1,1,1,1,1,1,1,1,1,3,3,1,3,3,3,1,1,1,2,1,1,1,3,2,3,3,3,3,3,3,1,1,2,1,2,1]
-Query_judgement = [2,3,2,3,1,1,1,1,1,1,1,2,3,1,3,2,1,4,1,1,3,3,1,4,1,4,1,1,1,1,1,1,2,1,1,3,1,4,3,3,3,4,3,1,3,1,3,4,2,1,2,3,2,1,1,3,1,1,2,3,1,3,1,1,1,4,1,1,1,1,1,1,1,1,2,3,3,1,3,3,1,1,1,1,3,1,1,1,3,4,3,3,3,3,3,3,1,1,1,1,1,1]
-cohen_kappa_score(Human_judgement, Query_judgement)
+cohen_kappa_score(df.Human.tolist(), df.Machine.tolist())
