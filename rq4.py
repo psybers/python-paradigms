@@ -78,12 +78,6 @@ for key, item in evolution:
             firstgrp.append(last)
             lastgrp.append(cur)
         last = cur
-    # first = item.at[item.index[0], 'classified']
-    # tail = item.at[item.index[-1], 'classified']
-    # data.append(first != tail)
-    # if first != tail:
-    #     firstgrp.append(first)
-    #     lastgrp.append(tail)
 
 # %%
 evogroups = pd.DataFrame({'changed?': data})
@@ -102,5 +96,3 @@ common.save_table(changegrps.to_frame('files'), 'rq4-changed', decimals=0, escap
 # %%
 common.save_table(changegrps.groupby('first').sum().to_frame('files'), 'rq4-first', decimals=0, escape=False)
 common.save_table(changegrps.groupby('last').sum().to_frame('files'), 'rq4-first', decimals=0, escape=False)
-
-# %%

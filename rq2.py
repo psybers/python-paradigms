@@ -9,15 +9,15 @@ import common
 # rq2 output format:
 #   o[project_url][file_path][feature_name] = feature_count
 try:
-    df = pd.read_parquet('data/parquet/rq2.parquet')
-except:
-    df = common.get_data('data/csv/rq2.output.csv', ['var', 'project', 'file', 'feature', 'counts'], ['var'], common.get_counts())
-    df = common.filter_projects(df)
-    df.to_parquet('data/parquet/rq2.parquet', compression='gzip')
-
-try:
     dfnodupes = pd.read_parquet('data/parquet/rq2-nodupes.parquet')
 except:
+    try:
+        df = pd.read_parquet('data/parquet/rq2.parquet')
+    except:
+        df = common.get_data('data/csv/rq2.output.csv', ['var', 'project', 'file', 'feature', 'counts'], ['var'], common.get_counts())
+        df = common.filter_projects(df)
+        df.to_parquet('data/parquet/rq2.parquet', compression='gzip')
+
     dfnodupes = common.remove_dupes(df)
     dfnodupes.to_parquet('data/parquet/rq2-nodupes.parquet', compression='gzip')
 

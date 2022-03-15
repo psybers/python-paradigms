@@ -20,15 +20,15 @@ catdict = {
 bins = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 try:
-    df = pd.read_parquet('data/parquet/rq1.parquet')
-except:
-    df = common.get_data('data/csv/rq1.output.csv', ['var', 'project', 'file', 'revid', 'commitdate', 'classification'], ['var', 'revid', 'commitdate'], common.get_counts())
-    df = common.filter_projects(df)
-    df.to_parquet('data/parquet/rq1.parquet', compression='gzip')
-
-try:
     dfnodupes = pd.read_parquet('data/parquet/rq1-nodupes.parquet')
 except:
+    try:
+        df = pd.read_parquet('data/parquet/rq1.parquet')
+    except:
+        df = common.get_data('data/csv/rq1.output.csv', ['var', 'project', 'file', 'revid', 'commitdate', 'classification'], ['var', 'revid', 'commitdate'], common.get_counts())
+        df = common.filter_projects(df)
+        df.to_parquet('data/parquet/rq1.parquet', compression='gzip')
+
     dfnodupes = common.remove_dupes(df)
     dfnodupes = common.split_categories(dfnodupes, categories)
 

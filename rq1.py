@@ -12,15 +12,15 @@ categories = common.get_categories()
 catindexes = ['func', 'oo', 'proc', 'imp', 'mixed']
 
 try:
-    df = pd.read_parquet('data/parquet/rq1.parquet')
-except:
-    df = common.get_data('data/csv/rq1.output.csv', ['var', 'project', 'file', 'revid', 'commitdate', 'classification'], ['var', 'revid', 'commitdate'], common.get_counts())
-    df = common.filter_projects(df)
-    df.to_parquet('data/parquet/rq1.parquet', compression='gzip')
-
-try:
     dfnodupes = pd.read_parquet('data/parquet/rq1-nodupes.parquet')
 except:
+    try:
+        df = pd.read_parquet('data/parquet/rq1.parquet')
+    except:
+        df = common.get_data('data/csv/rq1.output.csv', ['var', 'project', 'file', 'revid', 'commitdate', 'classification'], ['var', 'revid', 'commitdate'], common.get_counts())
+        df = common.filter_projects(df)
+        df.to_parquet('data/parquet/rq1.parquet', compression='gzip')
+
     dfnodupes = common.remove_dupes(df)
     dfnodupes = common.split_categories(dfnodupes, categories)
 
@@ -75,8 +75,6 @@ dftab1 = dfnodupes[[categories[-1]] + categories[0:-1]].describe()
 dftab1 = dftab1.drop(index='count')
 common.save_table(dftab1, 'rq1-statement-dist')
 
-# %%
-#common.save_table(df.groupby('classified').size().to_frame('files'), 'rq1-file-totals')
 
 # %%
 projsum = dfnodupes.groupby(['project']).sum()
@@ -87,16 +85,6 @@ projsum = projsum.reindex(catindexes)
 projsum = projsum.rename({'func': f'\textbf{{{categories[0]}}}', 'oo': f'\textbf{{{categories[1]}}}', 'proc': f'\textbf{{{categories[2]}}}', 'imp': f'\textbf{{{categories[3]}}}', 'mixed': '\textbf{Mixed}'})
 projsum = projsum.astype('float64')
 common.save_table(projsum.to_frame('all projects'), 'rq1-projects', decimals=0, escape=False)
-
-# print(projsum.to_frame('projects').style
-#     .format(thousands=',', precision=2)
-#     .hide_columns()
-#     .set_table_styles([
-#         {'selector': 'toprule', 'props': ':toprule;'},
-#         {'selector': 'bottomrule', 'props': ':bottomrule;'},
-#     ], overwrite=False)
-#     .highlight_max(axis=0, props='color:white; font-weight:bold; background-color:darkblue;')
-#     .to_latex(convert_css=True))
 
 
 # %%
@@ -135,5 +123,3 @@ tab2 = projsum2.to_frame('no toy projects')
 tab3 = projsum3.to_frame('1-file projects')
 
 common.save_table(tab1.join(tab2).join(tab3), 'rq1-3col-projects', decimals=0, escape=False)
-
-# %%
