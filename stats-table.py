@@ -45,6 +45,5 @@ df = pd.DataFrame(data=[projs, revs, files, snapshots, asts], index=['\\textbf{P
                    '\\textbf{Python Files}',
                    '\\textbf{Python File Snapshots}',
                    '\\textbf{ASTs}'])
-# df = df.astype({'count': 'float64'})
 
 common.save_table(df, 'py-dataset', decimals=0, escape=False, dropheader=True)
