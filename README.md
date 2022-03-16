@@ -3,7 +3,9 @@
 
 This replication package contains all data and scripts needed to reproduce the results from the paper.
 
-Note that all data was originally processed on a MacBook Pro with 2.6GHz 6-Core Intel Core i7 CPU and 32GB memory.  Some of the scripts (rq4) require substantial memory (around 60GB if processing from CSV).
+Note that all data was originally processed on a MacBook Pro with 2.6GHz 6-Core Intel Core i7 CPU and 32GB memory.  Some of the scripts (rq4) require substantial memory (around 50GB), but all were able to run on the 32GB MBP in about XXTODOXX minutes (when all Parquet files are pre-cached).
+
+TLDR: run `make rqs` to generate the tables/figures
 
 ------------------------------------------------------
 
