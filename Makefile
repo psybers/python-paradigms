@@ -8,14 +8,14 @@ GENDUPES:=$(PYTHON) data/gendupes.py
 all: data rqs
 
 rqs: clean
-	$(PYTHON) judgements.py &
-	$(PYTHON) cohens.py &
+	$(PYTHON) judgements.py
+	$(PYTHON) cohens.py
 	$(PYTHON) rq1.py
 	$(PYTHON) rq2.py
-	$(PYTHON) rq3.py &
+	$(PYTHON) rq3.py
 	$(PYTHON) rq4.py
-	$(PYTHON) stats-table.py &
-	$(PYTHON) dupes.py &
+	$(PYTHON) stats-table.py
+	$(PYTHON) dupes.py
 
 data: get-boa-output gendupes csvs
 
