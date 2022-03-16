@@ -116,6 +116,7 @@ def classify_file(row):
 
 def classify_all_projects(df):
     categories = get_categories()
+    catindexes = get_cat_indexes()
 
     projsum = df.groupby(['project']).sum()
     projsum = compute_pcts(projsum, categories)
