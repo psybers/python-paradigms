@@ -11,8 +11,10 @@ rqs: clean
 	$(PYTHON) judgements.py &
 	$(PYTHON) cohens.py &
 	$(PYTHON) rq2.py
-	($(PYTHON) rq1.py ; $(PYTHON) rq3.py) &
-	($(PYTHON) rq4.py ; $(PYTHON) stats-table.py) &
+	$(PYTHON) rq1.py
+	$(PYTHON) rq4.py
+	$(PYTHON) rq3.py &
+	$(PYTHON) stats-table.py &
 
 data: get-boa-output gendupes csvs
 
