@@ -2,6 +2,13 @@
 
 changed="0"
 
+if [ ! -f dataset/py/3/7/379733022.json ] ; then
+    mkdir -p dataset/py/3/7
+    /bin/echo -n "[" > dataset/py/3/7/379733022.json
+    wget -qO - "https://api.github.com/repos/psybers/py-classify-tests" >> dataset/py/3/7/379733022.json
+    echo "]" >> dataset/py/3/7/379733022.json
+fi
+
 if [ ! -d repo/3/7/379733022/.git ] ; then
     mkdir -p repo/3/7
     git clone --bare https://github.com/psybers/py-classify-tests.git repo/3/7/379733022
