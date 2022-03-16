@@ -32,7 +32,7 @@ except:
 # # Generate Chart(s)
 
 # %%
-subplot = dfnodupes.boxplot(boxprops={'facecolor': 'white', 'color': 'black'}, patch_artist=True, column=[categories[-1]] + categories[0:-1], closefliers=False)
+subplot = dfnodupes.boxplot(boxprops={'facecolor': 'white', 'color': 'black'}, patch_artist=True, column=[categories[-1]] + categories[0:-1], showfliers=False)
 subplot.grid(axis='x')
 subplot.set_axisbelow(True)
 plt.axvline(x=1.5)
