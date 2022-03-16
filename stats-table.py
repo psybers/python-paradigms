@@ -30,8 +30,11 @@ except:
 df2 = dfnodupes.drop(['OO', 'Procedural', 'Imperative', 'Statements', 'Functional', 'pct_func', 'pct_oo', 'pct_proc', 'pct_imp', 'classified', 'file', 'commitdate', 'ppl_count'], axis=1)
 df3 = df2.groupby(['project']).first()
 
-counts = df3.describe().apply(lambda s: s.apply('{0:.2f}'.format))
-common.save_table(counts, 'counts-dist', decimals=2, escape=True)
+counts = df3.describe().drop('count').astype('float64')#apply(lambda s: s.apply('{:,.2f}'.format))
+counts = counts[['revs_count', 'files_count', 'stmts_count', 'ast_count']]
+counts = counts.rename(columns={'revs_count': 'Revisions', 'files_count': 'Files', 'stmts_count': 'Statements', 'ast_count': 'ASTs'})
+
+common.save_table(counts, 'counts-dist', decimals=0, escape=True)#, column_format='lrrrr')
 
 # %%
 try:
