@@ -95,4 +95,4 @@ common.save_table(changegrps.to_frame('files'), 'rq4-changed', decimals=0, escap
 
 # %%
 common.save_table(changegrps.groupby('first').sum().to_frame('files'), 'rq4-first', decimals=0, escape=False)
-common.save_table(changegrps.groupby('last').sum().to_frame('files'), 'rq4-first', decimals=0, escape=False)
+common.save_table(changegrps.groupby('last').sum().to_frame('files'), 'rq4-last', decimals=0, escape=False)
