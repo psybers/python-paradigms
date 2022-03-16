@@ -9,7 +9,7 @@ import common
 # rq4 output format:
 #   o[project_url][file_path][commit_hash][commit_date] = { func, oo, proc, imp, stmts }
 categories = common.get_categories()
-catindexes = ['func', 'oo', 'proc', 'imp', 'mixed']
+catindexes = common.get_cat_indexes()
 catindexes2 = [
     ['func', 'func', 'func', 'func',
     'oo', 'oo', 'oo', 'oo',

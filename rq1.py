@@ -9,7 +9,7 @@ import common
 # rq1 output format:
 #   o[project_url][file_path][commit_hash][commit_date] = { func, oo, proc, imp, stmts }
 categories = common.get_categories()
-catindexes = ['func', 'oo', 'proc', 'imp', 'mixed']
+catindexes = common.get_cat_indexes()
 
 try:
     dfnodupes = pd.read_parquet('data/parquet/rq1-nodupes.parquet')
@@ -78,34 +78,16 @@ common.save_table(dftab1, 'rq1-statement-dist')
 
 # %%
 projsum = common.classify_all_projects(dfnodupes)
-projsum = projsum.reindex(catindexes)
-projsum = projsum.rename({'func': f'\textbf{{{categories[0]}}}', 'oo': f'\textbf{{{categories[1]}}}', 'proc': f'\textbf{{{categories[2]}}}', 'imp': f'\textbf{{{categories[3]}}}', 'mixed': '\textbf{Mixed}'})
-projsum = projsum.astype('float64')
 common.save_table(projsum.to_frame('all projects'), 'rq1-projects', decimals=0, escape=False)
 
-
 # %%
-projsum2 = dfnodupes
-projsum2 = projsum2.loc[projsum2['revs_count'] >= 10]
-
+projsum2 = dfnodupes.loc[dfnodupes['revs_count'] >= 10]
 projsum2 = common.classify_all_projects(projsum2)
-for k in catindexes:
-    if k not in projsum2: projsum2[k] = 0
-projsum2 = projsum2.reindex(catindexes)
-projsum2 = projsum2.rename({'func': f'\textbf{{{categories[0]}}}', 'oo': f'\textbf{{{categories[1]}}}', 'proc': f'\textbf{{{categories[2]}}}', 'imp': f'\textbf{{{categories[3]}}}', 'mixed': '\textbf{Mixed}'})
-projsum2 = projsum2.astype('float64')
 common.save_table(projsum2.to_frame('no toy projects'), 'rq1-no-toy-projects', decimals=0, escape=False)
 
 # %%
-projsum3 = dfnodupes
-projsum3 = projsum3.loc[dfnodupes['files_count'] == 1]
-
+projsum3 = dfnodupes.loc[dfnodupes['files_count'] == 1]
 projsum3 = common.classify_all_projects(projsum3)
-for k in catindexes:
-    if k not in projsum3: projsum3[k] = 0
-projsum3 = projsum3.reindex(catindexes)
-projsum3 = projsum3.rename({'func': f'\textbf{{{categories[0]}}}', 'oo': f'\textbf{{{categories[1]}}}', 'proc': f'\textbf{{{categories[2]}}}', 'imp': f'\textbf{{{categories[3]}}}', 'mixed': '\textbf{Mixed}'})
-projsum3 = projsum3.astype('float64')
 common.save_table(projsum3.to_frame('1-file projects'), 'rq1-onefile-projects', decimals=0, escape=False)
 
 # %%

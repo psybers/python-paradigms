@@ -77,6 +77,9 @@ def remove_dupes(df):
 def get_categories():
     return ['Functional', 'OO', 'Procedural', 'Imperative', 'Statements']
 
+def get_cat_indexes():
+    return ['func', 'oo', 'proc', 'imp', 'mixed']
+
 
 def compute_pcts(df, categories):
     df['pct_func'] = df[categories[0]] / df[categories[4]]
@@ -112,10 +115,22 @@ def classify_file(row):
 
 
 def classify_all_projects(df):
+    categories = get_categories()
+
     projsum = df.groupby(['project']).sum()
-    projsum = compute_pcts(projsum, get_categories())
+    projsum = compute_pcts(projsum, categories)
     projsum['classified'] = projsum.apply(classify_project, axis=1)
     projsum = projsum.groupby('classified').size()
+    projsum = projsum.astype('float64')
+    for k in catindexes:
+        if k not in projsum:
+            projsum[k] = 0
+    projsum = projsum.reindex(catindexes)
+    projsum = projsum.rename({'func': f'\textbf{{{categories[0]}}}',
+                              'oo': f'\textbf{{{categories[1]}}}',
+                              'proc': f'\textbf{{{categories[2]}}}',
+                              'imp': f'\textbf{{{categories[3]}}}',
+                              'mixed': '\textbf{Mixed}'})
     return projsum
 
 def classify_project(row):
