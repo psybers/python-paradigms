@@ -15,6 +15,7 @@ rqs: clean
 	$(PYTHON) rq3.py &
 	$(PYTHON) rq4.py
 	$(PYTHON) stats-table.py &
+	$(PYTHON) dupes.py &
 
 data: get-boa-output gendupes csvs
 

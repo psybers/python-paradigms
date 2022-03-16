@@ -75,6 +75,10 @@ This generates the following:
 - Table 2: `tables/py-dataset.tab.tex`
 - Table 3: `tables/counts-dist.tab.tex`
 
+> `python3 dupes.py`
+
+This reports how many dupes were removed.
+
 #### Generate the judgements table
 
 > `python3 judgements.py`
