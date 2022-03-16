@@ -7,6 +7,7 @@ data/txt/*.txt
 figures/*.pdf
 figures/*.png
 tables/*.tex
+replication-pkg.zip
 
 # temp files
 .DS_Store
