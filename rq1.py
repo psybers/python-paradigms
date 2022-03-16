@@ -77,10 +77,7 @@ common.save_table(dftab1, 'rq1-statement-dist')
 
 
 # %%
-projsum = dfnodupes.groupby(['project']).sum()
-projsum = common.compute_pcts(projsum, categories)
-projsum['classified'] = projsum.apply(common.classify_project, axis=1)
-projsum = projsum.groupby('classified').size()
+projsum = common.classify_all_projects(dfnodupes)
 projsum = projsum.reindex(catindexes)
 projsum = projsum.rename({'func': f'\textbf{{{categories[0]}}}', 'oo': f'\textbf{{{categories[1]}}}', 'proc': f'\textbf{{{categories[2]}}}', 'imp': f'\textbf{{{categories[3]}}}', 'mixed': '\textbf{Mixed}'})
 projsum = projsum.astype('float64')
@@ -91,10 +88,7 @@ common.save_table(projsum.to_frame('all projects'), 'rq1-projects', decimals=0, 
 projsum2 = dfnodupes
 projsum2 = projsum2.loc[projsum2['revs_count'] >= 10]
 
-projsum2 = projsum2.groupby(['project']).sum()
-projsum2 = common.compute_pcts(projsum2, categories)
-projsum2['classified'] = projsum2.apply(common.classify_project, axis=1)
-projsum2 = projsum2.groupby('classified').size()
+projsum2 = common.classify_all_projects(projsum2)
 for k in catindexes:
     if k not in projsum2: projsum2[k] = 0
 projsum2 = projsum2.reindex(catindexes)
@@ -106,10 +100,7 @@ common.save_table(projsum2.to_frame('no toy projects'), 'rq1-no-toy-projects', d
 projsum3 = dfnodupes
 projsum3 = projsum3.loc[dfnodupes['files_count'] == 1]
 
-projsum3 = projsum3.groupby(['project']).sum()
-projsum3 = common.compute_pcts(projsum3, categories)
-projsum3['classified'] = projsum3.apply(common.classify_project, axis=1)
-projsum3 = projsum3.groupby('classified').size()
+projsum3 = common.classify_all_projects(projsum3)
 for k in catindexes:
     if k not in projsum3: projsum3[k] = 0
 projsum3 = projsum3.reindex(catindexes)

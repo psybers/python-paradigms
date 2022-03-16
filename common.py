@@ -111,6 +111,13 @@ def classify_file(row):
     return "func"
 
 
+def classify_all_projects(df):
+    projsum = df.groupby(['project']).sum()
+    projsum = compute_pcts(projsum, get_categories())
+    projsum['classified'] = projsum.apply(classify_project, axis=1)
+    projsum = projsum.groupby('classified').size()
+    return projsum
+
 def classify_project(row):
     if row.Statements == 0:
         return 'mixed'
