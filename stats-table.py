@@ -50,15 +50,19 @@ except:
     rq1nodupes['classified'] = rq1nodupes.apply(common.classify_file, axis=1)
     rq1nodupes.to_parquet('data/parquet/rq1-nodupes.parquet', compression='gzip')
 
+firsts = dfnodupes.groupby(['project']).first()
+
 projs = len(dfnodupes.project.unique())
+allrevs = firsts['revs_count'].sum()
 revs = len(dfnodupes.commitdate.unique())
 files = len(dfnodupes.groupby(['project', 'file']).first())
 filesmain = len(rq1nodupes)
 snapshots = len(dfnodupes)
-asts = dfnodupes.groupby(['project']).first()['ast_count'].sum()
+asts = firsts['ast_count'].sum()
 
-df = pd.DataFrame(data=[projs, revs, files, filesmain, snapshots, asts], index=['\\textbf{Projects}',
-                   '\\textbf{Revisions}',
+df = pd.DataFrame(data=[projs, allrevs, revs, files, filesmain, snapshots, asts], index=['\\textbf{Projects}',
+                   '\\textbf{All Revisions}',
+                   '\\textbf{Revisions (with a Python file)}',
                    '\\textbf{Python Files}',
                    '\\rowcolor{gray!15}\\qquad\\textbf{Python Files (main branch)}',
                    '\\textbf{Python File Snapshots}',
