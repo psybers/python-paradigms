@@ -32,13 +32,13 @@ except:
 # # Generate Chart(s)
 
 # %%
-subplot = dfnodupes.boxplot(boxprops={'facecolor': 'white', 'color': 'black'}, patch_artist=True, column=[categories[-1]] + categories[0:-1], showfliers=False)
+subplot = dfnodupes.boxplot(boxprops={'facecolor': 'white', 'color': 'black'}, patch_artist=True, column=[categories[-1]] + categories[0:-1], closefliers=False)
 subplot.grid(axis='x')
 subplot.set_axisbelow(True)
 plt.axvline(x=1.5)
 plt.ylabel('Statements (per file)')
 plt.savefig('figures/' + 'rq1-statement-dist.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
 
 # %%
 from matplotlib.ticker import PercentFormatter
@@ -49,7 +49,7 @@ subplot.yaxis.set_major_formatter(PercentFormatter(xmax=1.0))
 subplot.set_xticklabels(labels=categories[0:-1])
 plt.ylabel('File Statements (%)')
 plt.savefig('figures/' + 'rq1-statement-pct.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
 
 # %%
 filecounts = dfnodupes.groupby('classified').size()
@@ -64,7 +64,7 @@ subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')
 plt.xlabel(None)
 plt.ylabel('Files')
 plt.savefig('figures/' + 'rq1-file-totals.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
 
 
 # %% [markdown]

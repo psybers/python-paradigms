@@ -57,7 +57,7 @@ from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.ylabel('Files')
 plt.savefig('figures/' + 'rq3-hist.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
 
 # %%
 mydf2 = mydf_stmts.iloc[0:1]
@@ -67,7 +67,7 @@ subplot.grid(axis='y')
 subplot.set_axisbelow(True)
 plt.ylabel('Files')
 plt.savefig('figures/' + 'rq3-hist-func.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
 
 
 # %%
@@ -88,7 +88,7 @@ from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.ylabel('Files')
 plt.savefig('figures/' + 'rq3-ppl-hist.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
 
 
 # %%
@@ -109,4 +109,4 @@ from matplotlib.ticker import FuncFormatter
 subplot.yaxis.set_major_formatter(FuncFormatter(lambda x, p: format(int(x), ',')))
 plt.ylabel('Files')
 plt.savefig('figures/' + 'rq3-revs-hist.pdf', dpi=1200, bbox_inches='tight')
-plt.show()
+plt.close()
