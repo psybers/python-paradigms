@@ -70,13 +70,18 @@ To generate all the figures and tables for the paper, you need to run the script
 
 > `python3 stats-table.py`
 
-This generates the dataset statistics tables, Tables 2 and 3.
+This generates the following:
+
+- Table 2: `tables/py-dataset.tab.tex`
+- Table 3: `tables/counts-dist.tab.tex`
 
 #### Generate the judgements table
 
 > `python3 judgements.py`
 
-This generates the judgements table, Table 4.
+This generates the following:
+
+- Table 4: `tables/judgements.tab.tex`
 
 #### Generate Cohen's kappa
 
@@ -120,7 +125,7 @@ This generates the following:
 
 This generates the following:
 
-- Table 7: `figures/rq4-evolution.pdf`
-- Table 8: `figures/rq4-changed.pdf`
-- Table 9: `figures/rq4-first.pdf`
-- Table 9: `figures/rq4-last.pdf`
+- Table 7: `tables/rq4-evolution.tab.tex`
+- Table 8: `tables/rq4-changed.tab.tex`
+- Table 9: `tables/rq4-first.tab.tex`
+- Table 9: `tables/rq4-last.tab.tex`
