@@ -31,64 +31,67 @@ catdict = {
     }
 
 try:
-    dfnodupes = pd.read_parquet('data/parquet/rq4-nodupes.parquet')
-except:
-    try:
-        df = pd.read_parquet('data/parquet/rq4.parquet')
-    except:
-        df = common.get_data(
-            'data/csv/rq4.output.csv',
-            ['var', 'project', 'file', 'revid', 'commitdate', 'classification'],
-            ['var', 'revid'],
-            common.get_counts())
-        df = common.filter_projects(df)
-
-        df.to_parquet('data/parquet/rq4.parquet', compression='gzip')
-
-    dfnodupes = common.remove_dupes(df)
-    dfnodupes = common.split_categories(dfnodupes, categories)
-    dfnodupes['classified'] = dfnodupes.apply(common.classify_file, axis=1)
-
-    dfnodupes.to_parquet('data/parquet/rq4-nodupes.parquet', compression='gzip')
-
-try:
     dfchanged = pd.read_parquet('data/parquet/rq4-changed.parquet')
 except:
+    try:
+        dfnodupes = pd.read_parquet('data/parquet/rq4-nodupes.parquet')
+    except:
+        try:
+            df = pd.read_parquet('data/parquet/rq4.parquet')
+        except:
+            df = common.get_data(
+                'data/csv/rq4.output.csv',
+                ['var', 'project', 'file', 'revid', 'commitdate', 'classification'],
+                ['var', 'revid'],
+                common.get_counts())
+            df = common.filter_projects(df)
+
+            df.to_parquet('data/parquet/rq4.parquet', compression='gzip')
+
+        dfnodupes = common.remove_dupes(df)
+        dfnodupes = common.split_categories(dfnodupes, categories)
+        dfnodupes['classified'] = dfnodupes.apply(common.classify_file, axis=1)
+
+        dfnodupes.to_parquet('data/parquet/rq4-nodupes.parquet', compression='gzip')
+
     dfchanged = dfnodupes[dfnodupes.duplicated(subset=['project', 'file'], keep=False)]
 
     dfchanged.to_parquet('data/parquet/rq4-changed.parquet', compression='gzip')
-
-# %%
-evolution = dfchanged.groupby(['project', 'file'])
 
 
 # %% [markdown]
 # # Generate Table(s)
 
 # %%
-data = []
-firstgrp = []
-lastgrp = []
-for key, item in evolution:
-    last = None
-    for i in range(len(item.index)):
-        cur = item.at[item.index[i], 'classified']
-        if last:
-            data.append(cur != last)
-            firstgrp.append(last)
-            lastgrp.append(cur)
-        last = cur
+try:
+    evolution = pd.read_parquet('data/parquet/rq4-evolution.parquet')
+except:
+    data = []
+    firstgrp = []
+    lastgrp = []
+
+    evolution = dfchanged.groupby(['project', 'file'])
+    for key, item in evolution:
+        last = None
+        for i in range(len(item.index)):
+            cur = item.at[item.index[i], 'classified']
+            if last:
+                data.append(cur != last)
+                firstgrp.append(last)
+                lastgrp.append(cur)
+            last = cur
+
+    evolution = pd.DataFrame({'changed?': data, 'first': firstgrp, 'last': lastgrp})
+    evolution.to_parquet('data/parquet/rq4-evolution.parquet', compression='gzip')
 
 # %%
-evogroups = pd.DataFrame({'changed?': data})
-evogroups = evogroups.groupby('changed?').size()
-evogroups = evogroups.astype('float64')
+evogroups = evolution[['changed?']]
+evogroups = evogroups.groupby('changed?').size().astype('float64')
 common.save_table(evogroups.to_frame('files'), 'rq4-evolution', decimals=0, escape=False)
 
 # %%
-changegrps = pd.DataFrame({'first': firstgrp, 'last': lastgrp})
-changegrps = changegrps.groupby(['first', 'last']).size()
-changegrps = changegrps.astype('float64')
+changegrps = evolution[['first', 'last']]
+changegrps = changegrps.groupby(['first', 'last']).size().astype('float64')
 changegrps = changegrps.reindex(catindexes2)
 changegrps = changegrps.rename(catdict)
 common.save_table(changegrps.to_frame('files'), 'rq4-changed', decimals=0, escape=False)
