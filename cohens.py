@@ -17,4 +17,4 @@ df.Human = df.Human.map(lambda x: cats[x])
 df.Machine = df.Machine.map(lambda x: cats[x])
 
 from sklearn.metrics import cohen_kappa_score
-cohen_kappa_score(df.Human.tolist(), df.Machine.tolist())
+print('cohen kappa', cohen_kappa_score(df.Human.tolist(), df.Machine.tolist()))
