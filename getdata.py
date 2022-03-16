@@ -41,8 +41,11 @@ def getoutput(id, filename=None):
 
     if job.wait():
         print(f'downloading {job.id} to {filename}')
+        output = job.output()
         with open(filename, 'w') as f:
-            f.write(job.output())
+            f.write(output)
+            f.flush()
+        del output
     elif job.compiler_status is CompilerStatus.ERROR:
         print(f'job {job.id} had compile error')
     elif job.exec_status is ExecutionStatus.ERROR:
