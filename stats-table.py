@@ -32,7 +32,7 @@ df3 = df2.groupby(['project']).first()
 
 counts = df3.describe().drop('count').astype('float64')#apply(lambda s: s.apply('{:,.2f}'.format))
 counts = counts[['revs_count', 'files_count', 'stmts_count', 'ast_count']]
-counts = counts.rename(columns={'revs_count': 'Revisions', 'files_count': 'Files', 'stmts_count': 'Statements', 'ast_count': 'ASTs'})
+counts = counts.rename(columns={'revs_count': 'Revisions', 'files_count': 'Python Files', 'stmts_count': 'Statements', 'ast_count': 'ASTs'})
 
 common.save_table(counts, 'counts-dist', decimals=0, escape=True)#, column_format='lrrrr')
 
