@@ -20,7 +20,7 @@ These are the Boa queries used to generate data for the paper.
 This is the output of the Boa queries (the `.txt`) files, as well as processed versions of that output (`.csv` and `.parquet`).
 
 #### Subdir: `figures`
-Any generated figures (`.png`) will go into this folder.
+Any generated figures (`.pdf`) will go into this folder.
 
 #### Subdir: `tables`
 Any generated tables (`.tex`) will go into this folder.
@@ -39,7 +39,9 @@ Run `boa/counts.boa` and save the output to `data/txt/counts.txt`.
 #### Get file hashes for dupe checking
 Run `boa/hashes.boa` and save the output to `data/txt/hashes.txt`.
 
-Then run `make gendupes` to keep only the hashes for files with at least one dupe.
+Then run `make gendupes` to keep only the hashes for files with at least one dupe.  This generates `data/txt/dupes.txt`.
+
+If you use the `make data` command instead of manually obtaining the outputs, you do not need to do anything else as it will call this target for you.
 
 #### Get data for RQ1
 Run `boa/rq1-proj-classify.boa` and save the output to `data/txt/rq1.output.txt`.
@@ -52,9 +54,9 @@ Run `boa/rq4-evolution.boa` and save the output to `data/txt/rq4.output.txt`.
 
 ### Processing Boa Output
 
-The Boa output is in a custom format, so first we convert it all into standard CSV format: `make csv`
+The Boa output is in a custom format, so first we convert it all into standard CSV format: `make csvs`
 
-If you used the `make data` command instead of manually obtaining the outputs, you do not need to do anything else as it will call these targets for you.
+If you use the `make data` command instead of manually obtaining the outputs, you do not need to do anything else as it will call this target for you.
 
 ### Generating Figures and Tables
 
@@ -66,13 +68,13 @@ To generate all the figures and tables for the paper, you need to run the script
 
 > `python3 stats-table.py`
 
-This generates the dataset statistics tables, Table 1 and 2.
+This generates the dataset statistics tables, Tables 2 and 3.
 
 #### Generate the judgements table
 
 > `python3 judgements.py`
 
-This generates the judgements table, Table 3.
+This generates the judgements table, Table 4.
 
 #### Generate Cohen's kappa
 
@@ -86,13 +88,11 @@ This generates Cohen's kappa for inter-rater agreement between humans and machin
 
 This generates the following:
 
-- Figure 2: `figures/rq1-statement-dist.png`
+- Figure 2: `figures/rq1-statement-dist.pdf`
 - Figure 2: `tables/rq1-statement-dist.tab.tex`
-- Figure 3: `figures/rq1-statement-pct.png`
-- Figure 4: `figures/rq1-file-totals.png`
-- Table 5: `tables/rq1-projects.tab.tex`
-- Table 6: `tables/rq1-no-toy-projects.tab.tex`
-- Table 7: `tables/rq1-onefile-projects.tab.tex`
+- Figure 3: `figures/rq1-statement-pct.pdf`
+- Figure 4: `figures/rq1-file-totals.pdf`
+- Table 5: `tables/rq1-3col-projects.tab.tex`
 
 #### RQ2: What are the most and least used features for each programming paradigm?
 
@@ -100,7 +100,7 @@ This generates the following:
 
 This generates the following:
 
-- Table 8: `tables/rq2-project.tab.tex`
+- Table 6: `tables/rq2-project.tab.tex`
 
 #### RQ3: Does project size (number of committers? number of files? number of statements? number of commits?) influence choice of programming paradigm?
 
@@ -108,8 +108,9 @@ This generates the following:
 
 This generates the following:
 
-- Figure 5: `figures/rq3-hist-func.png`
-- Figure 5: `figures/rq3-hist.png`
+- Figure 5: `figures/rq3-hist-func.pdf`
+- Figure 5: `figures/rq3-hist.pdf`
+- Figure 6: `figures/rq3-ppl-hist.pdf`
 
 #### RQ4: How does the programming paradigm choice change over time?
 
@@ -117,5 +118,7 @@ This generates the following:
 
 This generates the following:
 
-- Table 9: `figures/rq4-evolution.png`
-- Table 10: `figures/rq4-changed.png`
+- Table 7: `figures/rq4-evolution.pdf`
+- Table 8: `figures/rq4-changed.pdf`
+- Table 9: `figures/rq4-first.pdf`
+- Table 9: `figures/rq4-last.pdf`
