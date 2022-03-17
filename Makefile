@@ -36,7 +36,7 @@ update-figures:
 	cd paper ; git pull ; rm -Rf figures/ tables/ ; cp -R ../figures . ; cp -R ../tables . ; git add figures/ tables/ ; git commit -m 'update figures/tables' ; git push
 
 package:
-	zip -r replication-pkg.zip Makefile *.py LICENSE.txt README.md tables/ figures/ data/ boa/ -x \*/.DS_Store -x \*/.keep -x data/csv/\*.csv
+	zip -r -u replication-pkg.zip Makefile *.py LICENSE.txt README.md tables/ figures/ data/ boa/ -x \*/.DS_Store -x \*/.keep -x data/csv/\*.csv
 
 .PHONY: clean clean-gen clean-pq clean-boa clean-zip clean-all
 
