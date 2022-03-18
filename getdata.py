@@ -7,17 +7,19 @@ from boaapi.status import CompilerStatus, ExecutionStatus
 
 client = None
 def getclient():
-    client = BoaClient()
-    user = input("Username [%s]: " % getpass.getuser())
-    if not user:
-        user = getpass.getuser()
-    client.login(user, getpass.getpass())
-    print('successfully logged in to Boa API')
+    global client
+
+    if not client:
+        client = BoaClient()
+        user = input("Username [%s]: " % getpass.getuser())
+        if not user:
+            user = getpass.getuser()
+        client.login(user, getpass.getpass())
+        print('successfully logged in to Boa API')
+
     return client
 
 def getoutput(id, filename=None):
-    global client
-
     if not filename:
         filename = f'data/txt/boa-job{id}-output.txt'
     else:
@@ -31,10 +33,12 @@ def getoutput(id, filename=None):
     if not os.path.exists('data/txt'):
         os.mkdir('data/txt')
 
-    if not client:
-        client = getclient()
-
+    client = getclient()
     job = client.get_job(id)
+
+    if not job.get_public():
+        print(f'setting {job.id} public')
+        job.set_public(True)
 
     if job.is_running():
         print(f'waiting on {job.id}')
@@ -49,7 +53,7 @@ def getoutput(id, filename=None):
     elif job.compiler_status is CompilerStatus.ERROR:
         print(f'job {job.id} had compile error')
     elif job.exec_status is ExecutionStatus.ERROR:
-        print(f'job job.id had exec error')
+        print(f'job {job.id} had exec error')
 
 getoutput(97667, filename='counts.txt')
 
