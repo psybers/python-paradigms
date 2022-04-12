@@ -68,7 +68,7 @@ def remove_dupes(df):
         df2.to_parquet('data/parquet/dupes.parquet', compression='gzip')
 
     df2 = pd.merge(df, df2, how='left', left_on=['project', 'file'], right_on=['project', 'file'])
-    # df2 conists of rows in df2 where 'hash' is 'NaN' (meaning that they did not exist in df2.duplicated(subset=['hash']))
+    # df2 consists of rows in df2 where 'hash' is 'NaN' (meaning that they did not exist in df2.duplicated(subset=['hash']))
     df2 = df2[pd.isnull(df2['hash'])].drop(columns=['hash'])
 
     return df2
