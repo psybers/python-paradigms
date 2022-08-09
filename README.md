@@ -1,11 +1,34 @@
 # Replication Package
-## An Exploratory Study on the Use of Programming Language Features in Python
+## An Exploratory Study on the Predominant Programming Paradigms in Python Code
 
 This replication package contains all data and scripts needed to reproduce the results from the paper.
 
 Note that all data was originally processed on a MacBook Pro with 2.6GHz 6-Core Intel Core i7 CPU and 32GB memory.  Some of the scripts (rq4) require substantial memory (around 55GB), but all are able to run on the 32GB MBP in about 12 minutes (when all Parquet files are pre-cached, or over an hour without).
 
-TLDR: run `make rqs` to generate the tables/figures
+TLDR: run `make rqs` to re-generate the tables/figures without destroying the caches/downloading data
+
+------------------------------------------------------
+
+### Install Requirements
+
+The scripts require Python 3 (tested on Python 3.9.12, but probably works on earlier versions).
+
+The following Python packages are required (with tested versions pinned, older versions may still work):
+
+- matplotlib>=3.4.3
+- pandas>=1.4.2
+
+If you wind up needing to re-download any data from Boa, you will need the following package:
+
+- boa-api>=0.1.13
+
+Note that the Boa jobs themselves are marked public, so you do not need a Boa user to view the actual jobs/output via the website.  However, the Boa API requires a user/password to use it so programmatically downloading (even public jobs) currently requires authenticating.
+
+If you want to simply install all Python dependencies, you can run:
+
+```sh
+pip3 install -r requirements.txt
+```
 
 ------------------------------------------------------
 
@@ -30,6 +53,8 @@ Any generated tables (`.tex`) will go into this folder.
 ------------------------------------------------------
 
 ### Getting Boa Output
+
+**NOTE**: This step is only needed if you don't already have the output downloaded!
 
 The first step is to run Boa queries to generate output data for further processing.
 
@@ -56,32 +81,46 @@ Run `boa/rq4-evolution.boa` and save the output to `data/txt/rq4.output.txt`.
 
 ### Processing Boa Output
 
+**NOTE**: This step is only needed if you don't already have the output downloaded!
+
 The Boa output is in a custom format, so first we convert it all into standard CSV format: `make csvs`
 
 If you use the `make data` command instead of manually obtaining the outputs, you do not need to do anything else as it will call this target for you.
 
 ### Generating Figures and Tables
 
-To generate all the figures and tables for the paper, you need to run the script for each specific research question on the output from Boa.
+To generate all the figures and tables for the paper, you need to run the script for each specific research question on the output from Boa.  There is also a helper target to run all scripts:
 
-**Note: when you run these scripts, they load the Parquet files if they exist or fall back to loading CSV files. If you need to make any changes to the data, you will want to delete the Parquet files and regenerate the CSVs (`make csvs` does both) before you re-run these scripts.**
+```sh
+make rqs
+```
+
+**Note: when you run these scripts, they load the Parquet files if they exist or fall back to loading CSV files. If you need to make any changes to the data coming from Boa, you will want to delete the Parquet files and regenerate the CSVs (`make csvs` does both) before you re-run these scripts.**
+
+If you want to run individual scripts, you can also do so.  The next section explains how to run individual scripts.
 
 #### Generate the dataset statistics tables
 
-> `python3 stats-table.py`
+```sh
+python3 stats-table.py
+```
 
 This generates the following:
 
 - Table 2: `tables/py-dataset.tab.tex`
 - Table 3: `tables/counts-dist.tab.tex`
 
-> `python3 dupes.py`
+```sh
+python3 dupes.py
+```
 
-This reports how many dupes were removed.
+This reports how many dupes were removed, as mentioned in Section 4.2.
 
 #### Generate the judgements table
 
-> `python3 judgements.py`
+```sh
+python3 judgements.py
+```
 
 This generates the following:
 
@@ -89,13 +128,17 @@ This generates the following:
 
 #### Generate Cohen's kappa
 
-> `python3 cohens.py`
+```sh
+python3 cohens.py
+```
 
 This generates Cohen's kappa for inter-rater agreement between humans and machine.  Note the Fleiss' kappa (human inter-rater agreement) is generated inside the Excel spreadsheet.
 
-#### RQ1: What is the distribution of programming paradigms for Python projects as a whole, and each individual file, on GitHub?
+#### RQ1: What is the distribution of programming paradigms for Python projects on GitHub, for each project and for each individual file?
 
-> `python3 rq1.py`
+```sh
+python3 rq1.py
+```
 
 This generates the following:
 
@@ -105,17 +148,21 @@ This generates the following:
 - Figure 4: `figures/rq1-file-totals.pdf`
 - Table 5: `tables/rq1-3col-projects.tab.tex`
 
-#### RQ2: What are the most and least used features for each programming paradigm?
+#### RQ2: What are the most and least used features for some programming paradigms?
 
-> `python3 rq2.py`
+```sh
+python3 rq2.py
+```
 
 This generates the following:
 
 - Table 6: `tables/rq2-project.tab.tex`
 
-#### RQ3: Does project size (number of committers? number of files? number of statements? number of commits?) influence choice of programming paradigm?
+#### RQ3: Are project size and predominant paradigm related?} Are size metrics like number of committers, commits, files, or statements related to the predominant paradigm?
 
-> `python3 rq3.py`
+```sh
+python3 rq3.py
+```
 
 This generates the following:
 
@@ -123,9 +170,11 @@ This generates the following:
 - Figure 5: `figures/rq3-hist.pdf`
 - Figure 6: `figures/rq3-ppl-hist.pdf`
 
-#### RQ4: How does the programming paradigm choice change over time?
+#### RQ4: How does programming paradigm use change over time?
 
-> `python3 rq4.py`
+```sh
+python3 rq4.py
+```
 
 This generates the following:
 
