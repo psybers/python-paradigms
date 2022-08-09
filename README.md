@@ -3,9 +3,11 @@
 
 This replication package contains all data and scripts needed to reproduce the results from the paper.
 
+TLDR: download `data-cache.zip` and run `make rqs` to re-generate the tables/figures
+
 Note that all data was originally processed on a MacBook Pro with 2.6GHz 6-Core Intel Core i7 CPU and 32GB memory.  Some of the scripts (rq4) require substantial memory (around 55GB), but all are able to run on the 32GB MBP in about 12 minutes (when all Parquet files are pre-cached, or over an hour without).
 
-TLDR: run `make rqs` to re-generate the tables/figures without destroying the caches/downloading data
+The raw data (`*.txt` files from Boa) is very large - around 14GB uncompressed.  The cached Parquet files are quite a bit smaller.  Depending on your needs, you can probably skip downloading the `data.zip` file and only grab the `data-cache.zip` file.  This should be enough to allow running `make rqs` to re-generate all tables and figures from the paper.
 
 ------------------------------------------------------
 

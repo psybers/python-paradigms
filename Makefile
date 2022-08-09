@@ -40,8 +40,9 @@ update-figures:
 	cd paper ; git pull ; rm -Rf figures/ tables/ ; cp -R ../figures . ; cp -R ../tables . ; git add figures/ tables/ ; git commit -m 'update figures/tables' ; git push
 
 package:
-	-$(ZIP) replication-pkg.zip $(ZIPOPTIONS) *.py LICENSE.txt Makefile README.md requirements.txt tables/ figures/ boa/ $(ZIPIGNORES)
-	-$(ZIP) data-py.zip $(ZIPOPTIONS) data/ $(ZIPIGNORES)
+	-$(ZIP) replication-pkg.zip $(ZIPOPTIONS) *.py LICENSE.txt Makefile README.md requirements.txt tables/ figures/ boa/ data/judgements.csv data/*.xlsx $(ZIPIGNORES)
+	-$(ZIP) data.zip $(ZIPOPTIONS) data/txt/ data/*.py $(ZIPIGNORES)
+	-$(ZIP) data-cache.zip $(ZIPOPTIONS) data/parquet/ $(ZIPIGNORES)
 
 .PHONY: clean clean-gen clean-pq clean-boa clean-zip clean-all
 
