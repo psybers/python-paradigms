@@ -21,6 +21,7 @@ The following Python packages are required (with tested versions pinned, older v
 If you wind up needing to re-download any data from Boa, you will need the following package:
 
 - boa-api>=0.1.13
+- tqdm>=4.64.0
 
 Note that the Boa jobs themselves are marked public, so you do not need a Boa user to view the actual jobs/output via the website.  However, the Boa API requires a user/password to use it so programmatically downloading (even public jobs) currently requires authenticating.
 
