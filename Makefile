@@ -41,7 +41,7 @@ update-figures:
 
 package:
 	-$(ZIP) replication-pkg.zip $(ZIPOPTIONS) *.py LICENSE.txt Makefile README.md requirements.txt tables/ figures/ boa/ $(ZIPIGNORES)
-	-$(ZIP) data-py.zip $(ZIPOPTIONS) data/ boa/ $(ZIPIGNORES)
+	-$(ZIP) data-py.zip $(ZIPOPTIONS) data/ $(ZIPIGNORES)
 
 .PHONY: clean clean-gen clean-pq clean-boa clean-zip clean-all
 
