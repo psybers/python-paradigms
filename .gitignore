@@ -8,6 +8,7 @@ figures/*.pdf
 figures/*.png
 tables/*.tex
 replication-pkg.zip
+data-py.zip
 
 # temp files
 .DS_Store
