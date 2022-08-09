@@ -1,7 +1,11 @@
 PYTHON:=python3
+ZIP:=zip
 
 BOATOCSV:=$(PYTHON) data/boaToCsv.py
 GENDUPES:=$(PYTHON) data/gendupes.py
+
+ZIPOPTIONS:=-u -r
+ZIPIGNORES:=-x \*/.DS_Store -x \*/.keep -x data/csv/\*.csv
 
 .PHONY: all rqs data get-boa-output gendupes csvs update-figures package
 
@@ -36,7 +40,8 @@ update-figures:
 	cd paper ; git pull ; rm -Rf figures/ tables/ ; cp -R ../figures . ; cp -R ../tables . ; git add figures/ tables/ ; git commit -m 'update figures/tables' ; git push
 
 package:
-	zip -r -u replication-pkg.zip Makefile *.py LICENSE.txt README.md tables/ figures/ data/ boa/ -x \*/.DS_Store -x \*/.keep -x data/csv/\*.csv
+	-$(ZIP) replication-pkg.zip $(ZIPOPTIONS) Makefile *.py LICENSE.txt README.md tables/ figures/ boa/ $(ZIPIGNORES)
+	-$(ZIP) data-py.zip $(ZIPOPTIONS) data/ boa/ $(ZIPIGNORES)
 
 .PHONY: clean clean-gen clean-pq clean-boa clean-zip clean-all
 
@@ -55,6 +60,6 @@ clean-boa:
 	rm -f data/txt/*.txt
 
 clean-zip:
-	rm -f replication-pkg.zip
+	rm -f replication-pkg.zip data-py.zip
 
 clean-all: clean clean-gen clean-pq clean-boa clean-zip
