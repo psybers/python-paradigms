@@ -61,6 +61,6 @@ clean-boa:
 	rm -f data/txt/*.txt
 
 clean-zip:
-	rm -f replication-pkg.zip data-py.zip
+	rm -f replication-pkg.zip data.zip data-cache.zip
 
 clean-all: clean clean-gen clean-pq clean-boa clean-zip
