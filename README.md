@@ -20,6 +20,7 @@ The following Python packages are required (with tested versions pinned, older v
 - matplotlib>=3.4.3
 - pandas>=1.4.2
 - pyarrow>=9.0.0
+- scikit-learn>=1.1.2
 
 If you wind up needing to re-download any data from Boa, you will need the following package:
 
